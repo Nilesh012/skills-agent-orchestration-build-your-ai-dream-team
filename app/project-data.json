@@ -1,0 +1,46 @@
+{
+  "projects": [
+    {
+      "name": "Mona Metrics Modernization",
+      "owner": "Avery Chen",
+      "status": "Active",
+      "recentActivity": "API event mapping completed for the weekly insights feed.",
+      "priority": "High"
+    },
+    {
+      "name": "Octo Support Portal Refresh",
+      "owner": "Priya Raman",
+      "status": "At Risk",
+      "recentActivity": "Accessibility review found navigation issues to resolve before launch.",
+      "priority": "High"
+    },
+    {
+      "name": "Hubber Onboarding Toolkit",
+      "owner": "Marcus Lee",
+      "status": "Blocked",
+      "recentActivity": "Waiting on identity provider test credentials from the platform team.",
+      "priority": "Medium"
+    },
+    {
+      "name": "Mona Mobile Check-ins",
+      "owner": "Sofia Garcia",
+      "status": "On Hold",
+      "recentActivity": "Paused while product validates the revised notification strategy.",
+      "priority": "Low"
+    },
+    {
+      "name": "Copilot Readiness Workshops",
+      "owner": "Jordan Taylor",
+      "status": "Completed",
+      "recentActivity": "Final enablement deck and feedback summary were shared with stakeholders.",
+      "priority": "Medium"
+    },
+    {
+      "name": "Actions Cost Forecasting",
+      "owner": "Nina Patel",
+      "status": "Active",
+      "recentActivity": "Prototype dashboard connected to billing exports for pilot teams.",
+      "priority": "High"
+    }
+  ]
+}

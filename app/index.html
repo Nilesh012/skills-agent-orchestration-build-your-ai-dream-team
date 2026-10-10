@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Pulse</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="page-header">
+    <h1>Project Pulse</h1>
+    <p class="page-header__subtitle">A quick view of Mona team project health, ownership, and next steps.</p>
+  </header>
+
+  <main>
+    <p id="status-message" class="status-message" role="status" aria-live="polite">Loading project updates...</p>
+    <section class="dashboard" aria-label="Project status dashboard"></section>
+  </main>
+
+  <script>
+    const dashboard = document.querySelector('.dashboard');
+    const statusMessage = document.querySelector('#status-message');
+
+    function toDisplayValue(value, fallback) {
+      if (typeof value === 'string' && value.trim() !== '') {
+        return value.trim();
+      }
+
+      return fallback;
+    }
+
+    function toSlug(value) {
+      return toDisplayValue(value, 'unknown')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') || 'unknown';
+    }
+
+    function setStatus(message, isError) {
+      statusMessage.textContent = message;
+      statusMessage.classList.toggle('status-message--error', Boolean(isError));
+      statusMessage.setAttribute('role', isError ? 'alert' : 'status');
+    }
+
+    function createBadge(text, modifier) {
+      const badge = document.createElement('span');
+      badge.classList.add('badge', modifier);
+      badge.textContent = text;
+      return badge;
+    }
+
+    function appendDetail(detailsList, termText, valueNode) {
+      const detailWrapper = document.createElement('div');
+      const term = document.createElement('dt');
+      const description = document.createElement('dd');
+
+      term.textContent = termText;
+      description.append(valueNode);
+      detailWrapper.append(term, description);
+      detailsList.append(detailWrapper);
+    }
+
+    function createProjectCard(project) {
+      const projectName = toDisplayValue(project.name, 'Unknown');
+      const owner = toDisplayValue(project.owner, 'Unknown');
+      const status = toDisplayValue(project.status, 'Unknown');
+      const recentActivity = toDisplayValue(project.recentActivity, 'Not set');
+      const priority = toDisplayValue(project.priority, 'Not set');
+      const statusSlug = toSlug(status);
+      const prioritySlug = toSlug(priority);
+
+      const card = document.createElement('article');
+      card.classList.add('project-card');
+      card.dataset.status = statusSlug;
+      card.dataset.priority = prioritySlug;
+
+      const cardHeader = document.createElement('header');
+      cardHeader.classList.add('project-card__header');
+
+      const title = document.createElement('h2');
+      title.classList.add('project-card__title');
+      title.textContent = projectName;
+
+      const statusBadge = createBadge(status, `badge--status-${statusSlug}`);
+      cardHeader.append(title, statusBadge);
+
+      const ownerText = document.createElement('p');
+      ownerText.classList.add('project-card__owner');
+      ownerText.textContent = `Owner: ${owner}`;
+
+      const details = document.createElement('dl');
+      details.classList.add('project-card__details');
+
+      const activityText = document.createTextNode(recentActivity);
+      const priorityBadge = createBadge(priority, `badge--priority-${prioritySlug}`);
+
+      appendDetail(details, 'Recent activity', activityText);
+      appendDetail(details, 'Priority', priorityBadge);
+
+      card.append(cardHeader, ownerText, details);
+      return card;
+    }
+
+    function renderProjects(projects) {
+      dashboard.replaceChildren();
+
+      if (projects.length === 0) {
+        setStatus('No projects to display yet. Add projects to project-data.json to populate this dashboard.', false);
+        return;
+      }
+
+      const cards = projects.map(createProjectCard);
+      dashboard.append(...cards);
+      setStatus('', false);
+    }
+
+    async function loadProjects() {
+      try {
+        const response = await fetch('project-data.json');
+
+        if (!response.ok) {
+          throw new Error(`Project data request failed with status ${response.status}.`);
+        }
+
+        const data = await response.json();
+
+        if (!data || !Array.isArray(data.projects)) {
+          throw new Error('Project data must include a top-level projects array.');
+        }
+
+        renderProjects(data.projects);
+      } catch (error) {
+        dashboard.replaceChildren();
+        const fileHint = window.location.protocol === 'file:'
+          ? ' Open the dashboard with the "Run Project Pulse Dashboard" launch configuration instead of opening index.html directly.'
+          : '';
+        setStatus(`Unable to load project data. ${error.message}${fileHint}`, true);
+      }
+    }
+
+    loadProjects();
+  </script>
+</body>
+</html>
